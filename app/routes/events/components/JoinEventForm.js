@@ -20,7 +20,6 @@ import { sumBy } from 'lodash';
 import { selectUserWithGroups } from 'app/reducers/users';
 import { selectPenaltyByUserId } from 'app/reducers/penalties';
 
-
 type Event = Object;
 
 export type Props = {
@@ -211,9 +210,13 @@ class JoinEventForm extends Component<Props> {
                 ? 'Åpnet '
                 : 'Åpner '}
               <Time time={event.activationTime} format="nowToTimeInWords" />
-              {this.sumPenalties()>0 &&
-                <p> (Fordi du har {this.sumPenalties()} {this.sumPenalties() > 1 ? 'prikker' : 'prikk'})
-              </p>}
+              {this.sumPenalties() > 0 && (
+                <p>
+                  {' '}
+                  (Fordi du har {this.sumPenalties()}{' '}
+                  {this.sumPenalties() > 1 ? 'prikker' : 'prikk'})
+                </p>
+              )}
             </div>
           )}
           {disabledForUser && (
@@ -345,7 +348,7 @@ function mapStateToProps(state, { event, registration }) {
     return {
       initialValues: {
         [feedbackName]: registration.feedback
-      },
+      }
     };
   }
   const user = selectUserWithGroups(state, { username: state.auth.username });
