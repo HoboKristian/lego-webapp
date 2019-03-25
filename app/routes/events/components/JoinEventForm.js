@@ -16,6 +16,10 @@ import withCountdown from './JoinEventFormCountdownProvider';
 import formStyles from 'app/components/Form/Field.css';
 import moment from 'moment-timezone';
 import { paymentSuccess, paymentManual } from '../utils';
+import { sumBy } from 'lodash';
+import { selectUserWithGroups } from 'app/reducers/users';
+import { selectPenaltyByUserId } from 'app/reducers/penalties';
+
 
 type Event = Object;
 
@@ -37,6 +41,7 @@ export type Props = {
   captchaOpen: boolean,
   buttonOpen: boolean,
   registrationOpensIn: ?string,
+  penalties: Array<Object>,
   touch: (field: string) => void
 };
 
@@ -105,6 +110,10 @@ const SpotsLeft = ({ activeCapacity, spotsLeft }: SpotsLeftProps) => {
   return <div>Det er {spotsLeft} plasser igjen.</div>;
 };
 class JoinEventForm extends Component<Props> {
+  sumPenalties() {
+    return sumBy(this.props.penalties, 'weight');
+  }
+
   submitWithType = (handleSubmit, feedbackName, type) => {
     if (type === 'unregister') {
       return handleSubmit(() =>
@@ -202,6 +211,9 @@ class JoinEventForm extends Component<Props> {
                 ? 'Åpnet '
                 : 'Åpner '}
               <Time time={event.activationTime} format="nowToTimeInWords" />
+              {this.sumPenalties()>0 &&
+                <p> (Fordi du har {this.sumPenalties()} {this.sumPenalties() > 1 ? 'prikker' : 'prikk'})
+              </p>}
             </div>
           )}
           {disabledForUser && (
@@ -333,10 +345,14 @@ function mapStateToProps(state, { event, registration }) {
     return {
       initialValues: {
         [feedbackName]: registration.feedback
-      }
+      },
     };
   }
-  return {};
+  const user = selectUserWithGroups(state, { username: state.auth.username });
+  const penalties = selectPenaltyByUserId(state, { userId: user.id });
+  return {
+    penalties
+  };
 }
 
 export default compose(
