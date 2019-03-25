@@ -348,7 +348,7 @@ function mapStateToProps(state, { event, registration }) {
     return {
       initialValues: {
         [feedbackName]: registration.feedback
-      }
+      },
     };
   }
   const user = selectUserWithGroups(state, { username: state.auth.username });
